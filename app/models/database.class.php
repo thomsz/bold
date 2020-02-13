@@ -1,9 +1,6 @@
 <?php
 namespace App\Models;
 
-/**
- * 
- */
 class Database {
 
 	private static $hostname = 'localhost';
@@ -11,16 +8,18 @@ class Database {
 	private static $username = 'root';
 	private static $password = 'root';
 
+	/**
+	 * Connect to database
+	 * @return object PDO
+	 */
 	public static function connect() {
 		try {
 			$connection = new \PDO('mysql:host='.self::$hostname.';dbname='.self::$dbname, self::$username, self::$password);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			echo 'Connection failed: ' . $e->getMessage();
 		}
 
-		$statement = $connection->query('SELECT * FROM Persons');
-
-		print_r($statement->fetch());
+		return $connection;
 	}
 
 }
