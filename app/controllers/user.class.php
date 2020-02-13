@@ -33,7 +33,7 @@ class User extends MainController {
 
 		$POST_data = self::get_POST_data();
 
-		\App\Models\User::verify_token($POST_data->token);
+		\App\Models\Token::verify($POST_data->token);
 
 	}
 
