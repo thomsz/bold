@@ -12,7 +12,7 @@ class User extends MainController {
 		
 		try {
 			\App\Models\User::create_new($email, $password);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			echo $e->getMessage();
 		}
 
@@ -38,4 +38,3 @@ class User extends MainController {
 	}
 
 }
-?>

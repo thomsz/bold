@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Models;
 
-class User extends Database {
+class User extends Database
+{
 
 	private $email;
 	private $password;
@@ -10,8 +12,9 @@ class User extends Database {
 	/**
 	 * Get email address
 	 * @return string
-	 */	
-	public function get_email() {
+	 */
+	public function get_email()
+	{
 		return $this->email;
 	}
 
@@ -19,7 +22,8 @@ class User extends Database {
 	 * Get password
 	 * @return string Encrypted password
 	 */
-	private function get_password() {
+	private function get_password()
+	{
 		return $this->password;
 	}
 
@@ -29,7 +33,8 @@ class User extends Database {
 	 * @param  string $password Password
 	 * @return bool       		True when user was created, false otherwise
 	 */
-	public static function create_new($email = '', $password = '') {
+	public static function create_new($email = '', $password = '')
+	{
 
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
@@ -47,17 +52,14 @@ class User extends Database {
 
 		// Response
 		if ($statement->rowCount() > 0 && $response) {
-
 			echo json_encode(['success' => true, 'message' => 'user created']);
 			http_response_code(201);
 			return true;
-
 		} else {
 			echo json_encode(['success' => false, 'message' => 'user was not created']);
 			http_response_code(500);
 			return false;
 		}
-
 	}
 
 	/**
@@ -66,7 +68,8 @@ class User extends Database {
 	 * @param  string $password 
 	 * @return none
 	 */
-	public static function signin($email = '', $password = '') {
+	public static function signin($email = '', $password = '')
+	{
 
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
@@ -83,12 +86,10 @@ class User extends Database {
 
 			echo json_encode(['success' => true, 'token' => $token]);
 			http_response_code(201);
-
 		} else {
 			echo json_encode(['success' => false, 'message' => "can't sign in"]);
 			http_response_code(400);
 		}
-
 	}
 
 	/**
@@ -97,7 +98,8 @@ class User extends Database {
 	 * @param  string $password 
 	 * @return integer User ID
 	 */
-	private static function authenticate(string $email = '', string $password = '') {
+	private static function authenticate(string $email = '', string $password = '')
+	{
 
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
@@ -121,7 +123,6 @@ class User extends Database {
 		}
 
 		return $statement['UID'];
-
 	}
 
 	/**
@@ -129,7 +130,8 @@ class User extends Database {
 	 * @param  any $args
 	 * @return bool
 	 */
-	private static function empty(...$args) {
+	private static function empty(...$args)
+	{
 
 		foreach ($args as $arg) {
 			if (empty($arg)) {
@@ -138,7 +140,6 @@ class User extends Database {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -147,24 +148,28 @@ class User extends Database {
 	 * @param  string $password 
 	 * @return boolean           
 	 */
-	private static function validate_email_and_password($email, $password) {
+	private static function validate_email_and_password($email, $password)
+	{
 
 		if (empty($email)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'email' cannot be empty"]
+				[
+					'success' => false,
+					'message' => "'email' cannot be empty"
+				]
 			);
 
 			http_response_code(400);
 
 			return false;
-
 		} elseif (!is_string($email)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'email' must be a string"]
+				[
+					'success' => false,
+					'message' => "'email' must be a string"
+				]
 			);
 
 			http_response_code(400);
@@ -175,29 +180,29 @@ class User extends Database {
 		if (empty($password)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'password' cannot be empty"]
+				[
+					'success' => false,
+					'message' => "'password' cannot be empty"
+				]
 			);
 
 			http_response_code(400);
 
 			return false;
-
 		} elseif (!is_string($password)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'password' must be a string"]
+				[
+					'success' => false,
+					'message' => "'password' must be a string"
+				]
 			);
 
 			http_response_code(400);
 
 			return false;
-
 		}
 
 		return true;
-
 	}
-
 }
