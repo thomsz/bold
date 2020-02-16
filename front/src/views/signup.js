@@ -13,10 +13,33 @@ class Signup extends React.Component {
 
 	_handleSubmit = event => {
 		event.preventDefault();
-		this._validateForm();
 
+		if (!this._validateForm()) return false;
+
+		this._addUser();
+	};
+
+	_addUser = () => {
 		const data = this.state;
-		console.log(data);
+
+		// Send API request
+		fetch('http://localhost:8888/api/user/new', {
+			method: 'POST',
+			mode: 'no-cors',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
+		})
+			.then(response => {
+				return response.json();
+			})
+			.then(data => {
+				console.log('Success:', data);
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
 	};
 
 	_handleInputChange = event => {
@@ -27,8 +50,7 @@ class Signup extends React.Component {
 	};
 
 	_validateForm = () => {
-		if (!this._validateEmpty()) return false;
-		this._validatePasswordConfirmation();
+		return this._validateEmpty() && this._validatePasswordConfirmation();
 	};
 
 	_validateEmpty = () => {
