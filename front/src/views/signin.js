@@ -19,15 +19,10 @@ class Signin extends React.Component {
 
 	_signinUser = () => {
 		const data = this.state;
-		console.log(data);
 
 		// Send API request
 		fetch('http://localhost:8888/api/user/signin', {
 			method: 'POST',
-			mode: 'no-cors',
-			headers: {
-				'Content-Type': 'application/json',
-			},
 			body: JSON.stringify(data),
 		})
 			.then(response => {
@@ -35,10 +30,15 @@ class Signin extends React.Component {
 			})
 			.then(data => {
 				console.log('Success:', data);
+				this._storeToken(data.token);
 			})
 			.catch(error => {
 				console.error('Error:', error);
 			});
+	};
+
+	_storeToken = token => {
+		localStorage.setItem('token', token);
 	};
 
 	_handleInputChange = event => {

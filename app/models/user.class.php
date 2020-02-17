@@ -9,26 +9,32 @@ class User extends Database
 		parent::__construct();
 	}
 
-	private $email;
-	private $password;
-	private $token;
-
-	/**
-	 * Get email address
-	 * @return string
-	 */
-	public function get_email()
+	public function get_info()
 	{
-		return $this->email;
+		echo json_encode(
+			[
+				'success' => true,
+				'email' => $this->get_email(),
+			]
+		);
+		http_response_code(200);
 	}
 
-	/**
-	 * Get password
-	 * @return string Encrypted password
-	 */
-	private function get_password()
+	private function get_email()
 	{
-		return $this->password;
+		// Run query
+		$query = 'SELECT email FROM users WHERE token = :token';
+		$statement = self::$connection->prepare($query);
+		$response = $statement->execute([':token' => $this->token]);
+		$statement = $statement->fetch(\PDO::FETCH_ASSOC);
+
+		if (empty($statement) || !$response) {
+			echo json_encode(['success' => false, 'message' => 'not authorized']);
+			http_response_code(401);
+			exit();
+		}
+
+		return $statement['email'];
 	}
 
 	/**
