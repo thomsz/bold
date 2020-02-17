@@ -4,6 +4,10 @@ namespace App\Models;
 
 class User extends Database
 {
+	public function __construct()
+	{
+		parent::__construct();
+	}
 
 	private $email;
 	private $password;
@@ -43,11 +47,11 @@ class User extends Database
 		$password = md5($password);
 
 		// Connect to DB
-		$connection = self::connect();
+		self::connect();
 
 		// Run query
 		$query = 'INSERT INTO users (email, password) VALUES (:email, :password)';
-		$statement = $connection->prepare($query);
+		$statement = self::$connection->prepare($query);
 		$response = $statement->execute([':email' => $email, ':password' => $password]);
 
 		// Response
@@ -100,6 +104,8 @@ class User extends Database
 	 */
 	private static function authenticate(string $email = '', string $password = '')
 	{
+		// Connect to DB
+		self::connect();
 
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
@@ -107,12 +113,9 @@ class User extends Database
 		// Encrypt password
 		$password = md5($password);
 
-		// Connect to database
-		$connection = self::connect();
-
 		// Select from table
 		$query = 'SELECT UID FROM users WHERE email = :email AND password = :password';
-		$statement = $connection->prepare($query);
+		$statement = self::$connection->prepare($query);
 		$response = $statement->execute([':email' => $email, ':password' => $password]);
 		$statement = $statement->fetch(\PDO::FETCH_ASSOC);
 
