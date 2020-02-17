@@ -1,26 +1,48 @@
 <?php
+
 namespace App\Models;
 
-class User extends Database {
-
-	private $email;
-	private $password;
-	private $token;
-
-	/**
-	 * Get email address
-	 * @return string
-	 */	
-	public function get_email() {
-		return $this->email;
+class User extends Database
+{
+	public function __construct()
+	{
+		// Autheticate the request
+		parent::__construct();
 	}
 
 	/**
-	 * Get password
-	 * @return string Encrypted password
+	 * Get user info
 	 */
-	private function get_password() {
-		return $this->password;
+	public function get_info()
+	{
+		echo json_encode(
+			[
+				'success' => true,
+				'email' => $this->get_email(),
+			]
+		);
+		http_response_code(200);
+	}
+
+	/**
+	 * Get user email
+	 * @return string
+	 */
+	private function get_email()
+	{
+		// Run query
+		$query = 'SELECT email FROM users WHERE token = :token';
+		$statement = self::$connection->prepare($query);
+		$response = $statement->execute([':token' => $this->token]);
+		$statement = $statement->fetch(\PDO::FETCH_ASSOC);
+
+		if (empty($statement) || !$response) {
+			echo json_encode(['success' => false, 'message' => 'not authorized']);
+			http_response_code(401);
+			exit();
+		}
+
+		return $statement['email'];
 	}
 
 	/**
@@ -29,7 +51,8 @@ class User extends Database {
 	 * @param  string $password Password
 	 * @return bool       		True when user was created, false otherwise
 	 */
-	public static function create_new($email = '', $password = '') {
+	public static function create_new($email = '', $password = '')
+	{
 
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
@@ -38,26 +61,23 @@ class User extends Database {
 		$password = md5($password);
 
 		// Connect to DB
-		$connection = self::connect();
+		self::connect();
 
 		// Run query
 		$query = 'INSERT INTO users (email, password) VALUES (:email, :password)';
-		$statement = $connection->prepare($query);
+		$statement = self::$connection->prepare($query);
 		$response = $statement->execute([':email' => $email, ':password' => $password]);
 
 		// Response
 		if ($statement->rowCount() > 0 && $response) {
-
 			echo json_encode(['success' => true, 'message' => 'user created']);
 			http_response_code(201);
 			return true;
-
 		} else {
 			echo json_encode(['success' => false, 'message' => 'user was not created']);
 			http_response_code(500);
 			return false;
 		}
-
 	}
 
 	/**
@@ -66,7 +86,8 @@ class User extends Database {
 	 * @param  string $password 
 	 * @return none
 	 */
-	public static function signin($email = '', $password = '') {
+	public static function signin($email = '', $password = '')
+	{
 
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
@@ -83,12 +104,10 @@ class User extends Database {
 
 			echo json_encode(['success' => true, 'token' => $token]);
 			http_response_code(201);
-
 		} else {
 			echo json_encode(['success' => false, 'message' => "can't sign in"]);
 			http_response_code(400);
 		}
-
 	}
 
 	/**
@@ -97,7 +116,10 @@ class User extends Database {
 	 * @param  string $password 
 	 * @return integer User ID
 	 */
-	private static function authenticate(string $email = '', string $password = '') {
+	private static function authenticate(string $email = '', string $password = '')
+	{
+		// Connect to DB
+		self::connect();
 
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
@@ -105,12 +127,9 @@ class User extends Database {
 		// Encrypt password
 		$password = md5($password);
 
-		// Connect to database
-		$connection = self::connect();
-
 		// Select from table
 		$query = 'SELECT UID FROM users WHERE email = :email AND password = :password';
-		$statement = $connection->prepare($query);
+		$statement = self::$connection->prepare($query);
 		$response = $statement->execute([':email' => $email, ':password' => $password]);
 		$statement = $statement->fetch(\PDO::FETCH_ASSOC);
 
@@ -121,7 +140,6 @@ class User extends Database {
 		}
 
 		return $statement['UID'];
-
 	}
 
 	/**
@@ -129,7 +147,8 @@ class User extends Database {
 	 * @param  any $args
 	 * @return bool
 	 */
-	private static function empty(...$args) {
+	private static function empty(...$args)
+	{
 
 		foreach ($args as $arg) {
 			if (empty($arg)) {
@@ -138,7 +157,6 @@ class User extends Database {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -147,24 +165,28 @@ class User extends Database {
 	 * @param  string $password 
 	 * @return boolean           
 	 */
-	private static function validate_email_and_password($email, $password) {
+	private static function validate_email_and_password($email, $password)
+	{
 
 		if (empty($email)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'email' cannot be empty"]
+				[
+					'success' => false,
+					'message' => "'email' cannot be empty"
+				]
 			);
 
 			http_response_code(400);
 
 			return false;
-
 		} elseif (!is_string($email)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'email' must be a string"]
+				[
+					'success' => false,
+					'message' => "'email' must be a string"
+				]
 			);
 
 			http_response_code(400);
@@ -175,29 +197,29 @@ class User extends Database {
 		if (empty($password)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'password' cannot be empty"]
+				[
+					'success' => false,
+					'message' => "'password' cannot be empty"
+				]
 			);
 
 			http_response_code(400);
 
 			return false;
-
 		} elseif (!is_string($password)) {
 
 			echo json_encode(
-				['success' => false, 
-				'message' => "'password' must be a string"]
+				[
+					'success' => false,
+					'message' => "'password' must be a string"
+				]
 			);
 
 			http_response_code(400);
 
 			return false;
-
 		}
 
 		return true;
-
 	}
-
 }
