@@ -6,9 +6,13 @@ class User extends Database
 {
 	public function __construct()
 	{
+		// Autheticate the request
 		parent::__construct();
 	}
 
+	/**
+	 * Get user info
+	 */
 	public function get_info()
 	{
 		echo json_encode(
@@ -20,6 +24,10 @@ class User extends Database
 		http_response_code(200);
 	}
 
+	/**
+	 * Get user email
+	 * @return string
+	 */
 	private function get_email()
 	{
 		// Run query

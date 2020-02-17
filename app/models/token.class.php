@@ -7,11 +7,15 @@ namespace App\Models;
  */
 class Token extends Database
 {
-
+	/**
+	 * User ID
+	 * @var integer
+	 */
 	private $user_id;
 
 	public function __construct(int $user_id)
 	{
+		// Connect to DB
 		self::connect();
 
 		$this->user_id = $user_id;

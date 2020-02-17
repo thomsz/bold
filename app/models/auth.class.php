@@ -4,8 +4,17 @@ namespace App\Models;
 
 class Auth
 {
+    /**
+     * Signed in user token
+     * @var string
+     */
     protected $token;
 
+    /**
+     * Try to authenticate token
+     * @param  object $connection DB connection
+     * @return true               On success
+     */
     protected function try($connection)
     {
         try {
@@ -15,6 +24,7 @@ class Auth
             echo $e;
         }
 
+        // Run query
         $query = 'SELECT token FROM users WHERE token = :token';
         $statement = $connection->prepare($query);
         $response = $statement->execute([':token' => $this->token]);
