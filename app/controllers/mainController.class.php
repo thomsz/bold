@@ -28,6 +28,10 @@ class MainController
 				self::verify_token();
 				break;
 
+			case PREFIX . '/user/info':
+				self::info();
+				break;
+
 			default:
 				break;
 		}
@@ -47,6 +51,14 @@ class MainController
 
 		http_response_code(405);
 		exit();
+	}
+
+	/**
+	 * User info controller
+	 */
+	private static function info()
+	{
+		User::get_info();
 	}
 
 	/**

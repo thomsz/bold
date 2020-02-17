@@ -1,34 +1,39 @@
 <?php
+
 namespace App\Models;
 
 /**
  * User token
  */
-class Token extends Database {
-	
+class Token extends Database
+{
+	/**
+	 * User ID
+	 * @var integer
+	 */
 	private $user_id;
 
-	public function __construct(int $user_id) {
+	public function __construct(int $user_id)
+	{
+		// Connect to DB
+		self::connect();
 
 		$this->user_id = $user_id;
-
 	}
 
 	/**
 	 * Generate a login token
 	 * @return string|false The token on success, otherwise false
 	 */
-	public function generate() {
+	public function generate()
+	{
 
 		// Generate token
 		$token = uniqid();
 
-		// Connect to database
-		$connection = self::connect();
-
 		// Insert token to Users DB table
 		$query = 'UPDATE users SET token = :token WHERE UID = :user_id';
-		$statement = $connection->prepare($query);
+		$statement = self::$connection->prepare($query);
 		$response = $statement->execute([':token' => $token, ':user_id' => $this->user_id]);
 
 		// Response
@@ -39,14 +44,16 @@ class Token extends Database {
 			http_response_code(501);
 			exit();
 		}
-
 	}
 
 	/**
 	 * Verify user log in token
 	 * @param  string $token
 	 */
-	public static function verify($token = '') {
+	public static function verify($token = '')
+	{
+		// Connect to DB
+		self::connect();
 
 		if (empty($token)) {
 			echo json_encode(
@@ -57,12 +64,9 @@ class Token extends Database {
 			exit();
 		} else {
 
-			// Connect to DB
-			$connection = self::connect();
-
 			// Select from table
 			$query = 'SELECT UID FROM users WHERE token = :token';
-			$statement = $connection->prepare($query);
+			$statement = self::$connection->prepare($query);
 			$response = $statement->execute([':token' => $token]);
 			$statement = $statement->fetch(\PDO::FETCH_ASSOC);
 
@@ -75,9 +79,6 @@ class Token extends Database {
 				echo json_encode(['success' => true, 'user_id' => $statement['UID']]);
 				http_response_code(201);
 			}
-			
 		}
-
 	}
-
 }
