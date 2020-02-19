@@ -57,8 +57,8 @@ class User extends Database
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
 
-		// Encrypt password
-		$password = md5($password);
+		// Hash password
+		$password = password_hash($password);
 
 		// Connect to DB
 		self::connect();
@@ -124,16 +124,16 @@ class User extends Database
 		// Validate email and password
 		if (!self::validate_email_and_password($email, $password)) exit();
 
-		// Encrypt password
-		$password = md5($password);
+		// Hash password
+		$password = password_hash($password);
 
 		// Select from table
-		$query = 'SELECT UID FROM users WHERE email = :email AND password = :password';
+		$query = 'SELECT UID FROM users WHERE email = :email';
 		$statement = self::$connection->prepare($query);
-		$response = $statement->execute([':email' => $email, ':password' => $password]);
+		$response = $statement->execute([':email' => $email]);
 		$statement = $statement->fetch(\PDO::FETCH_ASSOC);
 
-		if (empty($statement) || !$response) {
+		if (empty($statement) || !$response || $statement['password'] != $password) {
 			echo json_encode(['success' => false, 'message' => 'not authorized']);
 			http_response_code(401);
 			exit();
